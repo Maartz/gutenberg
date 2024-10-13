@@ -5,6 +5,11 @@
 #include <unistd.h>
 #include <termios.h>
 
+// 0x1F decimal 31
+// As I want to bind exit to CTRL + Q 
+// 01010001&00011111=00010001 so 17 in ASCII
+#define CTRL_KEY(k) ((k) & 0x1F)
+
 struct termios orig_termios;
 
 void die(const char *s) {
@@ -61,7 +66,7 @@ int main() {
     }
     printf("%d ('%c')\r\n", c, c);
 
-    if (c == 'q') break;
+    if (c == CTRL_KEY('q')) break;
   }
   return 0;
 }
