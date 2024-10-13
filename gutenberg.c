@@ -19,6 +19,9 @@ struct termios orig_termios;
 /*** terminal ***/
 
 void die(const char *s) {
+  write(STDOUT_FILENO, "\x1b[2J", 4);
+  write(STDOUT_FILENO, "\x1b[H", 3);
+
   perror(s);
   exit(1);
 }
@@ -76,6 +79,7 @@ char editorReadKey() {
 // [2J is an escape sequence that tells the terminal to clear the entire screen
 void editorRefreshScreen() {
   write(STDOUT_FILENO, "\x1b[2J", 4);
+  write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
 /*** input ***/
