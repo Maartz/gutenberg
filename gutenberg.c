@@ -72,6 +72,12 @@ char editorReadKey() {
 
 /*** output ***/
 
+// \x1b is ESC
+// [2J is an escape sequence that tells the terminal to clear the entire screen
+void editorRefreshScreen() {
+  write(STDOUT_FILENO, "\x1b[2J", 4);
+}
+
 /*** input ***/
 
 void editorProcessKeypress() {
@@ -91,6 +97,7 @@ int main() {
 
   char c;
   while (1) {
+    editorRefreshScreen();
     editorProcessKeypress();
   }
   return 0;
