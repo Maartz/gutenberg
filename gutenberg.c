@@ -75,10 +75,19 @@ char editorReadKey() {
 
 /*** output ***/
 
+void editorDrawRows() {
+  int y;
+  for (y = 0; y < 24; y++) {
+    write(STDOUT_FILENO, "~\r\n", 3);
+  }
+}
+
 // \x1b is ESC
 // [2J is an escape sequence that tells the terminal to clear the entire screen
 void editorRefreshScreen() {
   write(STDOUT_FILENO, "\x1b[2J", 4);
+  write(STDOUT_FILENO, "\x1b[H", 3);
+  editorDrawRows();
   write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
