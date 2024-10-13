@@ -5,12 +5,18 @@
 #include <unistd.h>
 #include <termios.h>
 
+/*** defines ***/
+
 // 0x1F decimal 31
 // As I want to bind exit to CTRL + Q 
 // 01010001&00011111=00010001 so 17 in ASCII
 #define CTRL_KEY(k) ((k) & 0x1F)
 
+/*** data ***/
+
 struct termios orig_termios;
+
+/*** terminal ***/
 
 void die(const char *s) {
   perror(s);
@@ -53,20 +59,39 @@ void enableRawMode() {
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
 }
 
+char editorReadKey() {
+  int nread;
+  char c;
+
+  while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
+    // To make it work in Cygwin, I won’t treat EAGAIN as an error.
+    if (nread == -1 && errno != EAGAIN) die("read");
+  }
+  return c;
+}
+
+/*** output ***/
+
+/*** input ***/
+
+void editorProcessKeypress() {
+  char c = editorReadKey();
+
+  switch (c) {
+    case CTRL_KEY('q'):
+      exit(0);
+      break;
+  }
+}
+
+/*** init ***/
+
 int main() {
   enableRawMode();
 
   char c;
   while (1) {
-    char c = '\0';
-    // To make it work in Cygwin, I won’t treat EAGAIN as an error.
-    if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) die("read");
-    if (iscntrl(c)) {
-      printf("%d\r\n", c);
-    }
-    printf("%d ('%c')\r\n", c, c);
-
-    if (c == CTRL_KEY('q')) break;
+    editorProcessKeypress();
   }
   return 0;
 }
