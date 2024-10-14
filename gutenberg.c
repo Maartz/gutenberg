@@ -14,7 +14,11 @@
 
 /*** data ***/
 
-struct termios orig_termios;
+struct editorConfig {
+  struct termios orig_termios;
+};
+
+struct editorConfig E;
 
 /*** terminal ***/
 
@@ -26,17 +30,17 @@ void die(const char *s) {
   exit(1);
 }
 
-void disableRawMode() {
-  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1) {
+void disableRawMode(void) {
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1) {
     die("tcsetattr");
   } 
 }
 
-void enableRawMode() {
-  if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) die("tcgetattr");
+void enableRawMode(void) {
+  if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) die("tcgetattr");
   atexit(disableRawMode);
 
-  struct termios raw = orig_termios;
+  struct termios raw = E.orig_termios;
 
   /* 
    https://www.man7.org/linux/man-pages/man3/termios.3.html
@@ -62,7 +66,7 @@ void enableRawMode() {
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
 }
 
-char editorReadKey() {
+char editorReadKey(void) {
   int nread;
   char c;
 
@@ -75,7 +79,7 @@ char editorReadKey() {
 
 /*** output ***/
 
-void editorDrawRows() {
+void editorDrawRows(void) {
   int y;
   for (y = 0; y < 24; y++) {
     write(STDOUT_FILENO, "~\r\n", 3);
@@ -84,7 +88,7 @@ void editorDrawRows() {
 
 // \x1b is ESC
 // [2J is an escape sequence that tells the terminal to clear the entire screen
-void editorRefreshScreen() {
+void editorRefreshScreen(void) {
   write(STDOUT_FILENO, "\x1b[2J", 4);
   write(STDOUT_FILENO, "\x1b[H", 3);
   editorDrawRows();
@@ -93,7 +97,7 @@ void editorRefreshScreen() {
 
 /*** input ***/
 
-void editorProcessKeypress() {
+void editorProcessKeypress(void) {
   char c = editorReadKey();
 
   switch (c) {
@@ -105,10 +109,9 @@ void editorProcessKeypress() {
 
 /*** init ***/
 
-int main() {
+int main(void) {
   enableRawMode();
 
-  char c;
   while (1) {
     editorRefreshScreen();
     editorProcessKeypress();
