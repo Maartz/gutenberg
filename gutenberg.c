@@ -189,7 +189,10 @@ void editorRefreshScreen(void) {
 
   editorDrawRows(&ab);
 
-  abAppend(&ab, "\x1b[H", 3);
+  char buf[32];
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+  abAppend(&ab, buf, strlen(buf));
+
   // draw cursor
   abAppend(&ab, "\x1b[?25h", 6);
 
