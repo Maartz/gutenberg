@@ -202,12 +202,36 @@ void editorRefreshScreen(void) {
 
 /*** input ***/
 
+void editorMoveCursor(char key) {
+  switch (key) {
+  case 'h':
+    E.cx--;
+    break;
+  case 'l':
+    E.cx++;
+    break;
+  case 'k':
+    E.cy--;
+    break;
+  case 'j':
+    E.cy++;
+    break;
+  }
+}
+
 void editorProcessKeypress(void) {
   char c = editorReadKey();
 
   switch (c) {
   case CTRL_KEY('q'):
     exit(0);
+    break;
+
+  case 'h':
+  case 'j':
+  case 'k':
+  case 'l':
+    editorMoveCursor(c);
     break;
   }
 }
